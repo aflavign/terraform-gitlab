@@ -77,10 +77,11 @@ resource "google_compute_instance" "gitlab-ce" {
             "/opt/gitlab/bin/gitlab-ctl reconfigure"
         ]
 
-    connection {
-        type = "ssh"
-        user = "root"
-        agent = "false"
+        connection {
+            type = "ssh"
+            user = "root"
+            agent = "false"
+        }
     }
 }
 
