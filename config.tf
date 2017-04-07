@@ -1,4 +1,4 @@
-variable "config_file" {
+variable "auth_file" {
     description = "The configuration file containing the credentials to connect to google"
     default = "config.json"
 }
@@ -10,11 +10,12 @@ variable "data_size" {
 
 variable "data_volume" {
     description = "A storage volume for storing your GitLab data"
+    default = "default"
 }
 
 variable "image" {
     description = "The image to use for the instance"
-    default = "packer-1489607951"
+    default = "ubuntu-1604-xenial-v20170330"
 }
 
 variable "machine_type" {
@@ -34,10 +35,12 @@ variable "public_ports" {
 
 variable "region" {
     description = "The region this all lives in. TODO can this be inferred from zone or vice versa?"
+    default = "us-central1"
 }
 
 variable "zone" {
     description = "The zone to deploy the machine to"
+    default = "us-central1-a"
 }
 
 variable "data_volume_type" {
@@ -53,4 +56,16 @@ variable "external_ports_name" {
 variable "instance_name" {
     description = "The name of the instance to use"
     default = "gitlab-instance"
+}
+
+variable "config_file" {
+    description = "Configuration file to use for /etc/gitlab/gitlab.rb"
+}
+
+variable "dns_name" {
+    description = "The dns name of the instance to launch. Assumes the zone is part of the google managed zones"
+}
+
+variable "project" {
+    description = "The project in Google Cloud to create the GitLab instance under"
 }
