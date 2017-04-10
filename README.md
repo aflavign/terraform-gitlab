@@ -8,6 +8,7 @@ module "mygitlab" {
   network = "$network"
   project = "$project"
   region = "$region"
+  ...
   zone = "$zone"
 }
 ```
@@ -17,6 +18,7 @@ Options:
     * config_file -- This should be your gitlab.rb file you want to use to configure your GitLab instance. At the very least, external_url should be set.
     * data_volume -- The name of the data volume to use to store the GitLab data on.
     * dns_name -- What the DNS name for the GitLab instance should be. This is assumed to be part of a Google Cloud DNS Zone.
+    * dns_zone -- Which Google Cloud DNS zone the FQDN of the host is going to fall under
     * project -- Which Google Cloud project the resources should be created under.
   * not required:
     * auth_file (Default: config.json) -- The file containing the authentication details for your Google Cloud Service Account [See the Terraform documenation](https://www.terraform.io/docs/providers/google/index.html) for details on how to generate this file.
@@ -26,4 +28,5 @@ Options:
     * network (Default: default) -- The network to put the instance on.
     * public_ports (Default: 22, 80, 443) -- Which ports on the firewall should be open to the world.
     * region (Default: us-central1) -- Which region to allocate the reources in.
+    * ssh_key (Default: ~/.ssh/id_rsa) -- The ssh key to use to authenticate to the host.
     * zone (Default: us-central-1-a) -- Which specific zone to allocate the resources in.

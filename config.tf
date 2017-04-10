@@ -66,6 +66,15 @@ variable "dns_name" {
     description = "The dns name of the instance to launch. Assumes the zone is part of the google managed zones"
 }
 
+variable "dns_zone" {
+    description = "The name of the DNS zone in Google Cloud that the DNS name should go under"
+}
+
 variable "project" {
     description = "The project in Google Cloud to create the GitLab instance under"
+}
+
+variable "ssh_key" {
+    description = "The ssh key to use to connect to the Google Cloud Instance"
+    default = "~/.ssh/id_rsa"
 }

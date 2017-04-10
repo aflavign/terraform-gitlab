@@ -58,40 +58,38 @@ resource "google_compute_instance" "gitlab-ce" {
         }
     }
 
-    provisioner "file" {
-        source = "${var.config_file}"
-        destination = "/etc/gitlab/gitlab.rb"
-        connection {
-            type = "ssh"
-            user = "root"
-            agent = "true"
-        }
+    metadata {
+        sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
     }
 
     provisioner "remote-exec" {
         inline = [
-            "mount /dev/disk/by-id/gitlab_data /var/opt/gitlab/",
-            "apt-get install curl openssh-server ca-certificates postfix",
-            "curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash",
-            "apt-get install -y gitlab-ce",
-            "/opt/gitlab/bin/gitlab-ctl reconfigure"
+            "sudo mount /dev/disk/by-id/gitlab_data /var/opt/gitlab/",
+            "sudo apt-get update",
+            "echo 'postfix postfix/mailname string ${var.dns_name}' | sudo debconf-set-selections",
+            "echo 'postfix postfix/main_mailer_type string \"Internet Site\"' | sudo debconf-set-selections",
+            "sudo apt-get install -y curl openssh-server ca-certificates postfix",
+            "curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash",
+            "sudo apt-get install -y gitlab-ce",
+            "sudo /opt/gitlab/bin/gitlab-ctl reconfigure"
         ]
 
         connection {
             type = "ssh"
-            user = "root"
+            user = "ubuntu"
             agent = "false"
+            private_key = "${file("${var.ssh_key}")}"
         }
     }
 }
 
 resource "google_dns_record_set" "gitlab_instance" {
-    name = "${var.dns_name}"
+    name = "${var.dns_name}."
     type = "A"
     ttl = 300
     # TODO: This is really hard to read. I'd like to revisit at some point to clean it up.
     # But we shouldn't need two variables to specify DNS name
-    managed_zone = "${join(".", slice(split(".", var.dns_name), 1, length(split(".", var.dns_name))))}"
+    managed_zone = "${var.dns_zone}"
     rrdatas = ["${google_compute_instance.gitlab-ce.network_interface.0.access_config.0.assigned_nat_ip}"]
 }
 
