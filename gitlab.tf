@@ -4,14 +4,6 @@ provider "google" {
     region = "${var.region}"
 }
 
-resource "google_compute_disk" "data_volume" {
-    count = "${var.data_volume != "default" ? 1 : 0}"
-    name = "${var.data_volume}"
-    type = "${var.data_volume_type}"
-    zone = "${var.zone}"
-    size = "${var.data_size}"
-}
-
 resource "google_compute_network" "gitlab_network" {
     count = "${var.network != "default" ? 1 : 0}"
     description = "Network for GitLab instance"
@@ -62,16 +54,22 @@ resource "google_compute_instance" "gitlab-ce" {
         sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
     }
 
+    provisioner "file" {
+        source = "${path.module}/bootstrap"
+        destination = "/tmp/bootstrap"
+
+        connection {
+            type = "ssh"
+            user = "ubuntu"
+            agent = "false"
+            private_key = "${file("${var.ssh_key}")}"
+        }
+    }
+
     provisioner "remote-exec" {
         inline = [
-            "sudo mount /dev/disk/by-id/gitlab_data /var/opt/gitlab/",
-            "sudo apt-get update",
-            "echo 'postfix postfix/mailname string ${var.dns_name}' | sudo debconf-set-selections",
-            "echo 'postfix postfix/main_mailer_type string \"Internet Site\"' | sudo debconf-set-selections",
-            "sudo apt-get install -y curl openssh-server ca-certificates postfix",
-            "curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash",
-            "sudo apt-get install -y gitlab-ce",
-            "sudo /opt/gitlab/bin/gitlab-ctl reconfigure"
+            "chmod +x /tmp/bootstrap",
+            "sudo /tmp/bootstrap ${var.dns_name}"
         ]
 
         connection {
