@@ -1,17 +1,24 @@
 A terraform configuration to spin up a GitLab instance using the Google Compute engine
 
-To use, create a config like:
+## Usage
+1. Ensure your [ssh key is added](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys) to the Google Cloud Project your going to create the instance in
+1. [Create a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk) to store the repository and database on. Don't worry about attaching it to an instance, formatting or partitioning, Terraform will do that for you. 
+1. Create a terraform configuration file like:
 ```
 module "mygitlab" {
   source = "https://gitlab.com/gitlab-terraform/gce"
   data_volume = "$volume"
-  network = "$network"
+  dns_name = "$dns_name"
+  dns_zone = "$dns_zone"
   project = "$project"
   region = "$region"
   ...
   zone = "$zone"
 }
 ```
+1. Run `terraform plan`, ensure everything it's going to do looks correct.
+1. Run `terraform apply`
+1. Go to: `http://$dns_name` and set your root password
 
 Options:
   * required:
