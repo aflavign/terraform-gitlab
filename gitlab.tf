@@ -54,6 +54,18 @@ resource "google_compute_instance" "gitlab-ce" {
         sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
     }
 
+	provisioner "file" {
+		source = "${var.config_file}"
+		destination = "/tmp/gitlab.rb"
+
+        connection {
+            type = "ssh"
+            user = "ubuntu"
+            agent = "false"
+            private_key = "${file("${var.ssh_key}")}"
+        }
+    }
+
     provisioner "file" {
         source = "${path.module}/bootstrap"
         destination = "/tmp/bootstrap"

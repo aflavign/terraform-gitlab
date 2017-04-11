@@ -45,4 +45,8 @@ curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/scrip
 # Install GitLab
 apt-get install -y gitlab-ce
 # Configure GitLab
+mkdir -p /etc/gitlab
+mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb
+chown root:root /etc/gitlab/gitlab.rb
+chmod 0600 /etc/gitlab/gitlab.rb
 /opt/gitlab/bin/gitlab-ctl reconfigure
