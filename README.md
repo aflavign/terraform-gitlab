@@ -6,7 +6,7 @@ A terraform configuration to spin up a GitLab instance using the Google Compute 
 1. Create a terraform configuration file like:
 ```
 module "mygitlab" {
-  source = "https://gitlab.com/gitlab-terraform/gce"
+  source = "git::https://gitlab.com/gitlab-terraform/gce.git"
   data_volume = "$volume"
   dns_name = "$dns_name"
   dns_zone = "$dns_zone"
@@ -16,6 +16,7 @@ module "mygitlab" {
   zone = "$zone"
 }
 ```
+1. Run `terraform get`
 1. Run `terraform plan`, ensure everything it's going to do looks correct.
 1. Run `terraform apply`
 1. Go to: `http://$dns_name` and set your root password
