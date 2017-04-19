@@ -79,3 +79,13 @@ variable "ssh_key" {
     description = "The ssh key to use to connect to the Google Cloud Instance"
     default = "~/.ssh/id_rsa"
 }
+
+variable "ssl_key" {
+    description = "The SSL keyfile to use"
+    default = "/dev/null"
+}
+
+variable "ssl_certificate" {
+    description = "The SSL certificate file to use"
+    default = "/dev/null"
+}

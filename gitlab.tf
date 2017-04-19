@@ -33,6 +33,13 @@ resource "google_compute_instance" "gitlab-ce" {
 
     tags = ["gitlab"]
 
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        agent = "false"
+        private_key = "${file("${var.ssh_key}")}"
+    }
+
     disk {
         image = "${var.image}"
     }
@@ -58,24 +65,21 @@ resource "google_compute_instance" "gitlab-ce" {
         source = "${var.config_file}"
         destination = "/tmp/gitlab.rb"
 
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
     }
 
     provisioner "file" {
         source = "${path.module}/bootstrap"
         destination = "/tmp/bootstrap"
+    }
 
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
+    provisioner "file" {
+        source = "${var.ssl_key}"
+        destination = "/tmp/ssl_key"
+    }
+
+    provisioner "file" {
+        source = "${var.ssl_certificate}"
+        destination = "/tmp/ssl_certificate"
     }
 
     provisioner "remote-exec" {
@@ -83,13 +87,6 @@ resource "google_compute_instance" "gitlab-ce" {
             "chmod +x /tmp/bootstrap",
             "sudo /tmp/bootstrap ${var.dns_name}"
         ]
-
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
     }
 }
 
