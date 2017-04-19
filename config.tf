@@ -1,6 +1,5 @@
 variable "auth_file" {
     description = "The configuration file containing the credentials to connect to google"
-    default = "config.json"
 }
 
 variable "data_size" {
