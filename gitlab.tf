@@ -54,9 +54,9 @@ resource "google_compute_instance" "gitlab-ce" {
         sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
     }
 
-	provisioner "file" {
-		source = "${var.config_file}"
-		destination = "/tmp/gitlab.rb"
+    provisioner "file" {
+        source = "${var.config_file}"
+        destination = "/tmp/gitlab.rb"
 
         connection {
             type = "ssh"
@@ -94,6 +94,7 @@ resource "google_compute_instance" "gitlab-ce" {
 }
 
 resource "google_dns_record_set" "gitlab_instance" {
+    count = "${var.dns_zone != "no_dns" ? 1 : 0}"
     name = "${var.dns_name}."
     type = "A"
     ttl = 300

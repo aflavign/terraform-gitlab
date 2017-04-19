@@ -63,10 +63,12 @@ variable "config_file" {
 
 variable "dns_name" {
     description = "The dns name of the instance to launch. Assumes the zone is part of the google managed zones"
+    default = "no_dns"
 }
 
 variable "dns_zone" {
     description = "The name of the DNS zone in Google Cloud that the DNS name should go under"
+    default = "no_dns"
 }
 
 variable "project" {
