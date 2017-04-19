@@ -32,7 +32,7 @@ Options:
     * project -- Which Google Cloud project the resources should be created under.
   * not required:
     * auth_file (Default: config.json) -- The file containing the authentication details for your Google Cloud Service Account [See the Terraform documenation](https://www.terraform.io/docs/providers/google/index.html) for details on how to generate this file.
-    * dns_zone (Default: none) -- Which Google Cloud DNS zone the FQDN of the host is going to fall under. This should already exist. Leave this blank if you are using a different mechanism for handling DNS.
+    * dns_zone (Default: none) -- Which Google Cloud DNS zone the FQDN of the host is going to fall under. This should already exist. Leave this blank if you are using a different mechanism for handling DNS. If you are not using Google Cloud DNS, please create an A record in your DNS configuration that matches the value specified in dns_name.
     * image (Default: ubuntu-1604-xenial-v20170330) -- Which base image we should use. Currently other portions assume this is a Debian based system. We may remove this variable in the future.
     * machine_type (Default: n1-standard-1) -- The machine type to use. The default should be sufficient for up to 100 developers. Please see [our hardware requirements](https://docs.gitlab.com/ce/install/requirements.html#hardware-requirements) for sizing recommendations if you need a larger instance.
     * network (Default: default) -- The network to put the instance on.
