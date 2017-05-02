@@ -27,9 +27,14 @@ variable "network" {
     default = "default"
 }
 
-variable "public_ports" {
+variable "public_ports_ssl" {
     description = "A list of ports that need to be opened for GitLab to work"
     default = ["80", "443", "22"]
+}
+
+variable "public_ports_no_ssl" {
+    description = "A list of ports that need to be opened for GitLab to work"
+    default = ["80", "22"]
 }
 
 variable "region" {

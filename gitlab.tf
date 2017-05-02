@@ -11,13 +11,25 @@ resource "google_compute_network" "gitlab_network" {
     auto_create_subnetworks = "true"
 }
 
-resource "google_compute_firewall" "external_ports" {
+resource "google_compute_firewall" "external_ports_ssl" {
+    count = "${var.ssl_certificate != "/dev/null" ? 1 : 0}"
     name = "${var.external_ports_name}"
     network = "${var.network}"
 
     allow {
         protocol = "tcp"
-        ports = "${var.public_ports}"
+        ports = "${var.public_ports_ssl}"
+    }
+}
+
+resource "google_compute_firewall" "external_ports_no_ssl" {
+    count = "${var.ssl_certificate == "/dev/null" ? 1 : 0}"
+    name = "${var.external_ports_name}"
+    network = "${var.network}"
+
+    allow {
+        protocol = "tcp"
+        ports = "${var.public_ports_no_ssl}"
     }
 }
 
