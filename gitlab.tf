@@ -11,13 +11,25 @@ resource "google_compute_network" "gitlab_network" {
     auto_create_subnetworks = "true"
 }
 
-resource "google_compute_firewall" "external_ports" {
+resource "google_compute_firewall" "external_ports_ssl" {
+    count = "${var.ssl_certificate != "/dev/null" ? 1 : 0}"
     name = "${var.external_ports_name}"
     network = "${var.network}"
 
     allow {
         protocol = "tcp"
-        ports = "${var.public_ports}"
+        ports = "${var.public_ports_ssl}"
+    }
+}
+
+resource "google_compute_firewall" "external_ports_no_ssl" {
+    count = "${var.ssl_certificate == "/dev/null" ? 1 : 0}"
+    name = "${var.external_ports_name}"
+    network = "${var.network}"
+
+    allow {
+        protocol = "tcp"
+        ports = "${var.public_ports_no_ssl}"
     }
 }
 
@@ -32,6 +44,13 @@ resource "google_compute_instance" "gitlab-ce" {
     zone = "${var.zone}"
 
     tags = ["gitlab"]
+
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        agent = "false"
+        private_key = "${file("${var.ssh_key}")}"
+    }
 
     disk {
         image = "${var.image}"
@@ -54,28 +73,25 @@ resource "google_compute_instance" "gitlab-ce" {
         sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
     }
 
-	provisioner "file" {
-		source = "${var.config_file}"
-		destination = "/tmp/gitlab.rb"
+    provisioner "file" {
+        source = "${var.config_file}"
+        destination = "/tmp/gitlab.rb"
 
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
     }
 
     provisioner "file" {
         source = "${path.module}/bootstrap"
         destination = "/tmp/bootstrap"
+    }
 
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
+    provisioner "file" {
+        source = "${var.ssl_key}"
+        destination = "/tmp/ssl_key"
+    }
+
+    provisioner "file" {
+        source = "${var.ssl_certificate}"
+        destination = "/tmp/ssl_certificate"
     }
 
     provisioner "remote-exec" {
@@ -83,17 +99,11 @@ resource "google_compute_instance" "gitlab-ce" {
             "chmod +x /tmp/bootstrap",
             "sudo /tmp/bootstrap ${var.dns_name}"
         ]
-
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            agent = "false"
-            private_key = "${file("${var.ssh_key}")}"
-        }
     }
 }
 
 resource "google_dns_record_set" "gitlab_instance" {
+    count = "${var.dns_zone != "no_dns" ? 1 : 0}"
     name = "${var.dns_name}."
     type = "A"
     ttl = 300

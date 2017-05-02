@@ -27,9 +27,14 @@ variable "network" {
     default = "default"
 }
 
-variable "public_ports" {
+variable "public_ports_ssl" {
     description = "A list of ports that need to be opened for GitLab to work"
     default = ["80", "443", "22"]
+}
+
+variable "public_ports_no_ssl" {
+    description = "A list of ports that need to be opened for GitLab to work"
+    default = ["80", "22"]
 }
 
 variable "region" {
@@ -63,10 +68,12 @@ variable "config_file" {
 
 variable "dns_name" {
     description = "The dns name of the instance to launch. Assumes the zone is part of the google managed zones"
+    default = "no_dns"
 }
 
 variable "dns_zone" {
     description = "The name of the DNS zone in Google Cloud that the DNS name should go under"
+    default = "no_dns"
 }
 
 variable "project" {
@@ -76,4 +83,14 @@ variable "project" {
 variable "ssh_key" {
     description = "The ssh key to use to connect to the Google Cloud Instance"
     default = "~/.ssh/id_rsa"
+}
+
+variable "ssl_key" {
+    description = "The SSL keyfile to use"
+    default = "/dev/null"
+}
+
+variable "ssl_certificate" {
+    description = "The SSL certificate file to use"
+    default = "/dev/null"
 }
