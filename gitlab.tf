@@ -12,8 +12,8 @@ resource "google_compute_network" "gitlab_network" {
 }
 
 resource "google_compute_firewall" "external_ports_ssl" {
-    count = "${var.ssl_certificate != "/dev/null" ? 1 : 0}"
-    name = "${var.external_ports_name}"
+    count = "${var.ssl_certificate != "/dev/null" ? var.deploy_gitlab ? 1 : 0 : 0}"
+    name = "${var.prefix}${var.external_ports_name}"
     network = "${var.network}"
 
     allow {
@@ -23,8 +23,8 @@ resource "google_compute_firewall" "external_ports_ssl" {
 }
 
 resource "google_compute_firewall" "external_ports_no_ssl" {
-    count = "${var.ssl_certificate == "/dev/null" ? 1 : 0}"
-    name = "${var.external_ports_name}"
+    count = "${var.ssl_certificate != "/dev/null" ? 0 : var.deploy_gitlab ? 1 : 0}"
+    name = "${var.prefix}${var.external_ports_name}"
     network = "${var.network}"
 
     allow {
@@ -34,12 +34,31 @@ resource "google_compute_firewall" "external_ports_no_ssl" {
 }
 
 resource "google_compute_address" "external_ip" {
-    name = "gitlab-external-address"
+    count = "${var.deploy_gitlab ? 1 : 0}"
+    name = "${var.prefix}gitlab-external-address"
     region = "${var.region}"
 }
 
+resource "random_id" "initial_root_password" {
+    byte_length = 15
+}
+
+resource "random_id" "runner_token" {
+    byte_length = 15
+}
+
+data "template_file" "gitlab" {
+    template = "${file("${path.module}/templates/gitlab.rb.append")}"
+
+    vars {
+        initial_root_password = "${var.initial_root_password != "GENERATE" ? var.initial_root_password : random_id.initial_root_password.hex}"
+        runner_token = "${var.runner_token != "GENERATE" ? var.runner_token : random_id.runner_token.hex}"
+    }
+}
+
 resource "google_compute_instance" "gitlab-ce" {
-    name = "${var.instance_name}"
+    count = "${var.deploy_gitlab ? 1 : 0}"
+    name = "${var.prefix}${var.instance_name}"
     machine_type = "${var.machine_type}"
     zone = "${var.zone}"
 
@@ -74,9 +93,13 @@ resource "google_compute_instance" "gitlab-ce" {
     }
 
     provisioner "file" {
+        content = "${data.template_file.gitlab.rendered}"
+        destination = "/tmp/gitlab.rb.append"
+    }
+
+    provisioner "file" {
         source = "${var.config_file}"
         destination = "/tmp/gitlab.rb"
-
     }
 
     provisioner "file" {
@@ -96,6 +119,7 @@ resource "google_compute_instance" "gitlab-ce" {
 
     provisioner "remote-exec" {
         inline = [
+            "cat /tmp/gitlab.rb.append >> /tmp/gitlab.rb",
             "chmod +x /tmp/bootstrap",
             "sudo /tmp/bootstrap ${var.dns_name}"
         ]
@@ -115,5 +139,13 @@ resource "google_dns_record_set" "gitlab_instance" {
 
 output "address" {
     value = "${google_compute_instance.gitlab-ce.network_interface.0.access_config.0.assigned_nat_ip}"
+}
+
+output "initial_root_password" {
+    value = "${data.template_file.gitlab.vars.initial_root_password}"
+}
+
+output "runner_token" {
+    value = "${data.template_file.gitlab.vars.runner_token}"
 }
 # vim: sw=4 ts=4
