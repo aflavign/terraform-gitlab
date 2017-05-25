@@ -5,6 +5,7 @@ This project can be used to spin up:
 * A GitLab instance and GitLab Runner instance(s)
 * GitLab Runner instance(s) attached to external GitLab servers.
 
+By default, this will spin up a GitLab instance with one runner
 
 ## Usage
 1. Install [Terraform](https://www.terraform.io/downloads.html)
@@ -87,7 +88,7 @@ Options:
     * `initial_root_password` (Default: randomly generated) -- Value to set as the initial password for the `root` user account on the deployed GitLab instance.
     * `runner_token` (Default: randomly generated) -- Token that GitLab Runner instances will use to register against the `runner_host`.
     * `runner_host` (Default: generated from `dns_name`) -- URL of GitLab instance for GitLab Runner instances to register against. If not provided, it will generate from `dns_name` provided for the GitLab instance.
-    * `runner_count` (Default: `0`) -- Number of GitLab Runners to create and attach to the GitLab instance either deployed, or reachable at `runner_host`.
+    * `runner_count` (Default: `1`) -- Number of GitLab Runners to create and attach to the GitLab instance either deployed, or reachable at `runner_host`.
     * `runner_machine_type` (Default: `n1-standard-1`) -- The machine type to use for GitLab Runner instances. Size according to your needs.
     * `runner_disk_size` (Default: `20`) -- Size of disk (in GB) to use for GitLab Runner instances.
     * `runner_image` (Default: `ruby:2.3`) -- The Docker image that should be used by default.
