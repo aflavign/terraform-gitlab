@@ -110,7 +110,7 @@ variable "prefix" {
 
 variable "runner_count" {
     description = "Number of GitLab CI Runners to create."
-    default = 0
+    default = 1
 }
 
 variable "runner_host" {
