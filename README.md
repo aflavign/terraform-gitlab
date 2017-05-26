@@ -68,8 +68,8 @@ service is slightly different. See below for an example configuration against ht
 
 Since all your data is stored on the attached disk, the quickest way to deploy the latest version of GitLab is to recreate the instance:
 ```
-# terraform destroy
-# terraform apply
+$ terraform destroy
+$ terraform apply
 ```
 This will require about 10 minutes downtime of your GitLab instance while the instance is recreated, no data should be lost.
 
@@ -77,11 +77,11 @@ This will require about 10 minutes downtime of your GitLab instance while the in
 
 
 ### Upgrading the Terraform module
-On occasion, we will make updatesd to our terraform module. By default, `terraform get` does not update if you already have a copy of the module. If you'd like to take advantage of a newer version of the module:
+On occasion, we will make updates to our terraform module. By default, `terraform get` does not update if you already have a copy of the module. If you'd like to take advantage of a newer version of the module:
 ```
-# terraform get -update=true
-# terraform plan # this will show you what changes will need to be made to bring your deploy up to the latest configuration.
-# terraform apply
+$ terraform get -update=true
+$ terraform plan # this will show you what changes will need to be made to bring your deploy up to the latest configuration.
+$ terraform apply
 ```
 
 ### Terraform Variables (Options)
