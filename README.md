@@ -64,6 +64,25 @@ service is slightly different. See below for an example configuration against ht
 1. Run `terraform plan`, ensure everything it's going to do looks correct.
 1. Run `terraform apply`
 
+### Upgrading GitLab
+
+Since all your data is stored on the attached disk, the quickest way to deploy the latest version of GitLab is to recreate the instance:
+```
+# terraform destroy
+# terraform apply
+```
+This will require about 10 minutes downtime of your GitLab instance while the instance is recreated, no data should be lost.
+
+**Note**: The external IP address of your instance might change due to this process. If you are managing DNS yourself, you may need to update the A record.
+
+
+### Upgrading the Terraform module
+On occasion, we will make updatesd to our terraform module. By default, `terraform get` does not update if you already have a copy of the module. If you'd like to take advantage of a newer version of the module:
+```
+# terraform get -update=true
+# terraform plan # this will show you what changes will need to be made to bring your deploy up to the latest configuration.
+# terraform apply
+```
 
 ### Terraform Variables (Options)
 Options:
