@@ -1,73 +1,63 @@
-# provider google in gitlab.tf
-# resource google_compute_network gitlab_network in gitlab.tf
 data "template_file" "runner_host" {
-    template = "$${runner_host == "GENERATE" ? generated_host : runner_host}"
-    vars {
-      runner_host = "${var.runner_host}"
-      generated_host = "http${var.ssl_certificate != "/dev/null" ? "s" : ""}://${var.dns_name}"
-    }
+  template = "$${runner_host == "GENERATE" ? generated_host : runner_host}"
+
+  vars {
+    runner_host    = "${var.runner_host}"
+    generated_host = "http${var.ssl_certificate != "/dev/null" ? "s" : ""}://${var.dns_name}"
+  }
 }
 
-resource "google_compute_instance" "gitlab-ci-runner" {
-    count = "${var.runner_count}"
-    name = "${var.prefix}gitlab-ci-runner-${count.index}"
-    machine_type = "${var.runner_machine_type}"
-    zone = "${var.zone}"
+resource "aws_instance" "gitlab-ci-runner" {
+  name          = "runner"
+  count         = "${var.runner_count}"
+  instance_type = "${var.machine_type}"
+  ami           = "${data.aws_ami.ubuntu.id}"
 
-    tags = ["gitlab-ci-runner"]
+  # The name of our SSH keypair
+  key_name = "${var.host_key_name}"
 
-    network_interface {
-        network = "${var.network}"
-        access_config {
-          // Ephemeral IP
-        }
-    }
+  # Our Security group to allow HTTP and SSH access
+  vpc_security_group_ids = ["${aws_security_group.gitlab_host_SG.id}"]
 
-    metadata {
-        sshKeys = "ubuntu:${file("${var.ssh_key}.pub")}"
-    }
 
-    connection {
-        type = "ssh"
-        user = "ubuntu"
-        agent = "false"
-        private_key = "${file("${var.ssh_key}")}"
-    }
+  subnet_id = "${data.terraform_remote_state.infra.public_subnet_a_id}"
 
-    disk {
-        image = "${var.image}"
-        size = "${var.runner_disk_size}"
-    }
+  # associate_public_ip_address = false
+  # set the relevant tags
+  tags = {
+    Name  = "gitlab_runner"
+    Owner = "${var.tag_Owner}"
+  }
 
-    provisioner "file" {
-        source = "${path.module}/bootstrap_runner"
-        destination = "/tmp/bootstrap_runner"
-    }
+  provisioner "file" {
+    source      = "${path.module}/bootstrap_runner"
+    destination = "/tmp/bootstrap_runner"
+  }
 
-    provisioner "remote-exec" {
-        inline = [
-            "chmod +x /tmp/bootstrap_runner",
-            "sudo /tmp/bootstrap_runner ${google_compute_instance.gitlab-ci-runner.name} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}"
-        ]
-    }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/bootstrap_runner",
+      "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.name} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}",
+    ]
+  }
 
-    provisioner "remote-exec" {
-      when = "destroy"
-      inline = [
-        "sudo gitlab-ci-multi-runner unregister --name ${google_compute_instance.gitlab-ci-runner.name}"
-      ]
+  provisioner "remote-exec" {
+    when = "destroy"
 
-    }
+    inline = [
+      "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.name}",
+    ]
+  }
 }
 
 output "runner_disk_size" {
-    value = "${var.runner_disk_size}"
+  value = "${var.runner_disk_size}"
 }
 
 output "runner_image" {
-    value = "${var.runner_image}"
+  value = "${var.runner_image}"
 }
 
 output "runner_host" {
-    value = "${data.template_file.runner_host.rendered}"
+  value = "${data.template_file.runner_host.rendered}"
 }

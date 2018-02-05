@@ -1,40 +1,6 @@
 #!/bin/bash
 set -eu
 
-# handle data volume
-
-data_device="/dev/disk/by-id/google-gitlab_data"
-partition="${data_device}-part1"
-
-if ! blkid "${data_device}" > /dev/null
-then
-    parted "${data_device}" mklabel gpt
-fi
-
-partcount=$(lsblk -n "${data_device}" | wc -l)
-
-if [ "${partcount}" = 1 ]
-then
-    parted -s -a optimal "${data_device}" mkpart primary 0% 100%
-    # If we're creating partitions, then we should be creating an fs too
-    # I have a personal bias towards xfs, and against ext4 due to an old
-    # fs full bug in ext4
-    apt-get install -y xfsprogs
-    mkfs.xfs -f ${partition}
-    xfs_admin -L gitlab_data ${partition}
-fi
-
-if ! grep -q gitlab_data /etc/fstab
-then
-    echo 'LABEL=gitlab_data /var/opt/gitlab xfs defaults 0 0' >> /etc/fstab
-    mkdir -p /var/opt/gitlab
-fi
-
-if ! grep -qs '/var/opt/gitlab' /proc/mounts
-then
-    mount /var/opt/gitlab
-fi
-
 # configure prereqs
 apt-get update
 echo 'postfix postfix/mailname string ${1}' | debconf-set-selections
