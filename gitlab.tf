@@ -132,7 +132,7 @@ resource "aws_instance" "gitlab-ce" {
 
   provisioner "file" {
     source      = "bootstrap"
-    destination = "/tmp/bootstrap ${aws_instance.gitlab-ce.private_id}"
+    destination = "/tmp/bootstrap" 
 
     connection {
       type        = "ssh"
@@ -145,7 +145,7 @@ resource "aws_instance" "gitlab-ce" {
     inline = [
       "cat /tmp/gitlab.rb.append >> /tmp/gitlab.rb",
       "chmod +x /tmp/bootstrap",
-      "sudo /tmp/bootstrap",
+      "sudo /tmp/bootstrap ${aws_instance.gitlab-ce.private_ip}"
     ]
 
     connection {
