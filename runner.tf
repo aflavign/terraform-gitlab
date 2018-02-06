@@ -9,7 +9,7 @@ data "template_file" "runner_host" {
 
 resource "aws_instance" "gitlab-ci-runner" {
   count         = "${var.runner_count}"
-  instance_type = "${var.machine_type}"
+  instance_type = "t2.small"
   ami           = "${data.aws_ami.rhel7.id}"
 
   # The name of our SSH keypair
@@ -28,7 +28,14 @@ resource "aws_instance" "gitlab-ci-runner" {
   }
 
   provisioner "file" {
-    source      = "${path.module}/bootstrap_runner"
+    source = "bootstrap_runner"
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
+
     destination = "/tmp/bootstrap_runner"
   }
 
@@ -37,6 +44,12 @@ resource "aws_instance" "gitlab-ci-runner" {
       "chmod +x /tmp/bootstrap_runner",
       "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.id} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}",
     ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 
   provisioner "remote-exec" {
@@ -45,6 +58,12 @@ resource "aws_instance" "gitlab-ci-runner" {
     inline = [
       "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.id}",
     ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 }
 

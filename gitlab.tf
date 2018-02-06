@@ -111,16 +111,34 @@ resource "aws_instance" "gitlab-ce" {
   provisioner "file" {
     content     = "${data.template_file.gitlab.rendered}"
     destination = "/tmp/gitlab.rb.append"
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 
   provisioner "file" {
-    source      = "${path.module}/gitlab.rb"
+    source      = "gitlab.rb"
     destination = "/tmp/gitlab.rb"
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 
   provisioner "file" {
-    source      = "${path.module}/bootstrap"
+    source      = "bootstrap"
     destination = "/tmp/bootstrap"
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 
   provisioner "remote-exec" {
@@ -129,6 +147,12 @@ resource "aws_instance" "gitlab-ce" {
       "chmod +x /tmp/bootstrap",
       "sudo /tmp/bootstrap",
     ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = "${file("eh-frankfurt-afla.pem")}"
+    }
   }
 }
 

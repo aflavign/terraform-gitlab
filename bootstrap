@@ -15,4 +15,4 @@ mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb
 chown root:root /etc/gitlab/gitlab.rb
 chmod 0600 /etc/gitlab/gitlab.rb
 
-/opt/gitlab/bin/gitlab-ctl reconfigure
+gitlab-ctl reconfigure

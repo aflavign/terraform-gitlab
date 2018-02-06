@@ -5,7 +5,7 @@ variable "image" {
 
 variable "machine_type" {
   description = "A machine type for your compute instance"
-  default     = "t2.small"
+  default     = "t2.large"
 }
 
 variable "network" {
