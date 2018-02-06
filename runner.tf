@@ -3,22 +3,20 @@ data "template_file" "runner_host" {
 
   vars {
     runner_host    = "${var.runner_host}"
-    generated_host = "http${var.ssl_certificate != "/dev/null" ? "s" : ""}://${var.dns_name}"
+    generated_host = "http://${aws_instance.gitlab-ce.private_ip}"
   }
 }
 
 resource "aws_instance" "gitlab-ci-runner" {
-  name          = "runner"
   count         = "${var.runner_count}"
   instance_type = "${var.machine_type}"
-  ami           = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.rhel7.id}"
 
   # The name of our SSH keypair
   key_name = "${var.host_key_name}"
 
   # Our Security group to allow HTTP and SSH access
   vpc_security_group_ids = ["${aws_security_group.gitlab_host_SG.id}"]
-
 
   subnet_id = "${data.terraform_remote_state.infra.public_subnet_a_id}"
 
@@ -37,7 +35,7 @@ resource "aws_instance" "gitlab-ci-runner" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/bootstrap_runner",
-      "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.name} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}",
+      "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.id} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}",
     ]
   }
 
@@ -45,7 +43,7 @@ resource "aws_instance" "gitlab-ci-runner" {
     when = "destroy"
 
     inline = [
-      "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.name}",
+      "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.id}",
     ]
   }
 }

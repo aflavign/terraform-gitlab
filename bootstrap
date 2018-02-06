@@ -2,26 +2,17 @@
 set -eu
 
 # configure prereqs
-apt-get update
-echo 'postfix postfix/mailname string ${1}' | debconf-set-selections
-echo 'postfix postfix/main_mailer_type string \"Internet Site\"' | debconf-set-selections
-apt-get install -y curl openssh-server ca-certificates postfix
+yum update -y
+yum install -y curl policycoreutils-python openssh-server
 # Add GitLab repo
-curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | bash
 # Install GitLab
-apt-get install -y gitlab-ce
+yum install -y gitlab-ce
+
 # Configure GitLab
 mkdir -p /etc/gitlab
 mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb
 chown root:root /etc/gitlab/gitlab.rb
 chmod 0600 /etc/gitlab/gitlab.rb
-# Check if we have an ssl key and put it in place if so.
-# This assumes we also have an ssl certificate
-if [ -s /tmp/ssl_key ]
-then
-    install -d -m 0700 /etc/gitlab/ssl
-    mv /tmp/ssl_key "/etc/gitlab/ssl/${1}.key"
-    mv /tmp/ssl_certificate "/etc/gitlab/ssl/${1}.crt"
-fi
 
 /opt/gitlab/bin/gitlab-ctl reconfigure

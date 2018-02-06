@@ -21,12 +21,12 @@ resource "random_id" "runner_token" {
   byte_length = 15
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "rhel7" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+    values = ["*RHEL-7.4*"]
   }
 
   filter {
@@ -34,7 +34,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["309956199498"] # Canonical
 }
 
 data "template_file" "gitlab" {
@@ -80,26 +80,6 @@ resource "aws_security_group" "gitlab_host_SG" {
   # next few rules allow access from the ELB SG
   # can't mix CIDR and SGs, so repeating a lot of the above
 
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # ingress {
-  #   from_port = 443
-  #   to_port = 443
-  #   protocol = "tcp"
-  #   security_groups = ["${aws_security_group.gitlab_ELB_SG.id}"]
-  # }
-
-  # ingress {
-  #   from_port = 443
-  #   to_port = 443
-  #   protocol = "tcp"
-  #   security_groups = ["${aws_security_group.gitlab_ELB_SG.id}"]
-  # }
   # outbound internet access
   egress {
     from_port   = 0
@@ -112,7 +92,7 @@ resource "aws_security_group" "gitlab_host_SG" {
 resource "aws_instance" "gitlab-ce" {
   instance_type = "${var.machine_type}"
   count         = "${var.deploy_gitlab ? 1 : 0}"
-  ami           = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.rhel7.id}"
 
   # The name of our SSH keypair
   key_name = "${var.host_key_name}"
@@ -124,7 +104,7 @@ resource "aws_instance" "gitlab-ce" {
 
   # set the relevant tags
   tags = {
-    Name  = "gitlab_runner"
+    Name  = "gitlab_ce"
     Owner = "${var.tag_Owner}"
   }
 
@@ -134,7 +114,7 @@ resource "aws_instance" "gitlab-ce" {
   }
 
   provisioner "file" {
-    source      = "${var.config_file}"
+    source      = "${path.module}/gitlab.rb"
     destination = "/tmp/gitlab.rb"
   }
 
@@ -143,21 +123,11 @@ resource "aws_instance" "gitlab-ce" {
     destination = "/tmp/bootstrap"
   }
 
-  provisioner "file" {
-    source      = "${var.ssl_key}"
-    destination = "/tmp/ssl_key"
-  }
-
-  provisioner "file" {
-    source      = "${var.ssl_certificate}"
-    destination = "/tmp/ssl_certificate"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "cat /tmp/gitlab.rb.append >> /tmp/gitlab.rb",
       "chmod +x /tmp/bootstrap",
-      "sudo /tmp/bootstrap ${aws_instance.gitlab-ce.private_ip}",
+      "sudo /tmp/bootstrap",
     ]
   }
 }

@@ -13,38 +13,14 @@ variable "network" {
   default     = "default"
 }
 
-variable "public_ports_ssl" {
-  description = "A list of ports that need to be opened for GitLab to work"
-  default     = ["80", "443", "22"]
-}
-
-variable "public_ports_no_ssl" {
-  description = "A list of ports that need to be opened for GitLab to work"
-  default     = ["80", "22"]
-}
-
 variable "region" {
   description = "The region this all lives in. TODO can this be inferred from zone or vice versa?"
   default     = "eu-central-1"
 }
 
-variable "external_ports_name" {
-  description = "The name of the external ports object, can be used to reuse lists"
-  default     = "gitlab-external-ports"
-}
-
 variable "instance_name" {
   description = "The name of the instance to use"
   default     = "gitlab-instance"
-}
-
-variable "config_file" {
-  description = "Configuration file to use for /etc/gitlab/gitlab.rb"
-}
-
-variable "ssh_key" {
-  description = "The ssh key to use to connect to the Google Cloud Instance"
-  default     = "~/.ssh/id_rsa"
 }
 
 variable "deploy_gitlab" {
@@ -55,10 +31,6 @@ variable "deploy_gitlab" {
 variable "initial_root_password" {
   description = "Set the initial admin password, generated if not provided"
   default     = "GENERATE"
-}
-
-variable "prefix" {
-  description = "Prefix to resource names in cloud provider"
 }
 
 variable "runner_count" {
