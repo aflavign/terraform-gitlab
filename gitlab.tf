@@ -132,7 +132,7 @@ resource "aws_instance" "gitlab-ce" {
 
   provisioner "file" {
     source      = "bootstrap"
-    destination = "/tmp/bootstrap"
+    destination = "/tmp/bootstrap ${aws_instance.gitlab-ce.private_id}"
 
     connection {
       type        = "ssh"

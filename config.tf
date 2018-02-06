@@ -1,8 +1,3 @@
-variable "image" {
-  description = "The image to use for the instance"
-  default     = "ubuntu-1604-xenial-v20170330"
-}
-
 variable "machine_type" {
   description = "A machine type for your compute instance"
   default     = "t2.large"
@@ -46,11 +41,6 @@ variable "runner_host" {
 variable "runner_token" {
   description = "GitLab CI Runner registration token. Will be generated if not provided"
   default     = "GENERATE"
-}
-
-variable "runner_disk_size" {
-  description = "Size of disk (in GB) for Runner instances"
-  default     = 20
 }
 
 variable "runner_image" {
