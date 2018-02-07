@@ -42,7 +42,7 @@ resource "aws_instance" "gitlab-ce" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = "${file("eh-frankfurt-afla.pem")}"
+      private_key = "${file("${var.private_key}")}"
     }
   }
 
@@ -55,7 +55,7 @@ resource "aws_instance" "gitlab-ce" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = "${file("eh-frankfurt-afla.pem")}"
+      private_key = "${file("${var.private_key}")}"
     }
   }
 }
