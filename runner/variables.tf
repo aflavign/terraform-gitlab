@@ -41,4 +41,6 @@ variable "host_key_name" {
   description = "Key Pair"
 }
 
+variable "private_key" {}
+
 variable "gitlab-ce_private_ip" {}

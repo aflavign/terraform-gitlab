@@ -51,7 +51,7 @@ resource "aws_instance" "gitlab-ci-runner" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = "${file("eh-frankfurt-afla.pem")}"
+      private_key = "${file("${var.private_key}")}"
     }
 
     destination = "/tmp/bootstrap_runner"
@@ -66,7 +66,7 @@ resource "aws_instance" "gitlab-ci-runner" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = "${file("eh-frankfurt-afla.pem")}"
+      private_key = "${file("${var.private_key}")}"
     }
   }
 
@@ -80,7 +80,7 @@ resource "aws_instance" "gitlab-ci-runner" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = "${file("eh-frankfurt-afla.pem")}"
+      private_key = "${file("${var.private_key}")}"
     }
   }
 }
