@@ -8,12 +8,3 @@ yum install -y curl policycoreutils-python openssh-server
 curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | bash
 # Install GitLab
 yum install -y gitlab-ce
-
-# Configure GitLab
-mkdir -p /etc/gitlab
-mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb
-sed -i "s@GENERATED_EXTERNAL_URL@http://$1@" /etc/gitlab/gitlab.rb
-chown root:root /etc/gitlab/gitlab.rb
-chmod 0600 /etc/gitlab/gitlab.rb
-
-gitlab-ctl reconfigure

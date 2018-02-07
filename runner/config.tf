@@ -1,8 +1,3 @@
-variable "machine_type" {
-  description = "A machine type for your compute instance"
-  default     = "t2.large"
-}
-
 variable "network" {
   description = "The network for the instance to live on"
   default     = "default"
@@ -18,16 +13,6 @@ variable "instance_name" {
   default     = "gitlab-instance"
 }
 
-variable "deploy_gitlab" {
-  description = "Enable / Disable deploying a GitLab instance"
-  default     = true
-}
-
-variable "initial_root_password" {
-  description = "Set the initial admin password, generated if not provided"
-  default     = "GENERATE"
-}
-
 variable "runner_count" {
   description = "Number of GitLab CI Runners to create."
   default     = 1
@@ -39,8 +24,7 @@ variable "runner_host" {
 }
 
 variable "runner_token" {
-  description = "GitLab CI Runner registration token. Will be generated if not provided"
-  default     = "GENERATE"
+  description = "GitLab CI Runner registration token." 
 }
 
 variable "runner_image" {
@@ -61,3 +45,5 @@ variable "tag_Owner" {
 variable "host_key_name" {
   description = "Key Pair"
 }
+
+variable "gitlab-ce_private_ip" {}

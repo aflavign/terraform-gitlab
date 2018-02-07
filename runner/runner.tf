@@ -1,22 +1,47 @@
+provider "aws" {
+  region = "${var.region}"
+}
+
+# get remote state to retreive id used for all accounts ressources
+data "terraform_remote_state" "infra" {
+  backend = "s3"
+
+  config {
+    bucket = "yxdzlwvolxmz-eu-central-1-tfstate-infra"
+    key    = "landing-zone/infra/infra.tfstate"
+    region = "eu-central-1"
+  }
+}
+
 data "template_file" "runner_host" {
   template = "$${runner_host == "GENERATE" ? generated_host : runner_host}"
 
   vars {
     runner_host    = "${var.runner_host}"
-    generated_host = "http://${aws_instance.gitlab-ce.private_ip}"
+    generated_host = "http://${var.gitlab-ce_private_ip}"
   }
+}
+
+module "security_group" {
+  source = "../modules/security_group"
+  vpc_id = "${data.terraform_remote_state.infra.vpc_id}"
+  name = "gitlab runner"
+}
+
+module "ami" {
+  source = "../modules/ami"
 }
 
 resource "aws_instance" "gitlab-ci-runner" {
   count         = "${var.runner_count}"
   instance_type = "t2.small"
-  ami           = "${data.aws_ami.rhel7.id}"
+  ami           = "${module.ami.id}"
 
   # The name of our SSH keypair
   key_name = "${var.host_key_name}"
 
   # Our Security group to allow HTTP and SSH access
-  vpc_security_group_ids = ["${aws_security_group.gitlab_host_SG.id}"]
+  vpc_security_group_ids = ["${module.security_group.id}"]
 
   subnet_id = "${data.terraform_remote_state.infra.public_subnet_a_id}"
 
@@ -42,7 +67,7 @@ resource "aws_instance" "gitlab-ci-runner" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/bootstrap_runner",
-      "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.id} ${data.template_file.runner_host.rendered} ${data.template_file.gitlab.vars.runner_token} ${var.runner_image}",
+      "sudo /tmp/bootstrap_runner ${aws_instance.gitlab-ci-runner.id} ${data.template_file.runner_host.rendered} ${var.runner_token} ${var.runner_image}",
     ]
 
     connection {
