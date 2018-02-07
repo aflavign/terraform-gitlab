@@ -1,6 +1,9 @@
+provider "aws" {
+  region = "${var.region}"
+}
+
 module "config" {
   source = "../modules/config"
-  region = "${var.region}"
 }
 
 module "ami" {
@@ -45,6 +48,7 @@ resource "aws_instance" "gitlab-ce" {
 
   provisioner "remote-exec" {
     inline = [
+      "chmod +x /tmp/bootstrap",
       "sudo /tmp/bootstrap ${aws_instance.gitlab-ce.private_ip}",
     ]
 

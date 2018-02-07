@@ -1,16 +1,11 @@
+variable "region" {
+  description = "The region this all lives in"
+  default     = "eu-central-1"
+}
+
 variable "machine_type" {
   description = "A machine type for your compute instance"
   default     = "t2.large"
-}
-
-variable "network" {
-  description = "The network for the instance to live on"
-  default     = "default"
-}
-
-variable "region" {
-  description = "The region this all lives in. TODO can this be inferred from zone or vice versa?"
-  default     = "eu-central-1"
 }
 
 variable "instance_name" {

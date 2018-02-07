@@ -1,9 +1,3 @@
-variable "region" {}
-
-provider "aws" {
-  region = "${var.region}"
-}
-
 # get remote state to retreive id used for all accounts ressources
 data "terraform_remote_state" "infra" {
   backend = "s3"

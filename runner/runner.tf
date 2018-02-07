@@ -1,6 +1,9 @@
+provider "aws" {
+  region = "${var.region}"
+}
+
 module "config" {
   source = "../modules/config"
-  region = "${var.region}"
 }
 
 data "template_file" "runner_host" {

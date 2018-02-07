@@ -1,8 +1,3 @@
-variable "network" {
-  description = "The network for the instance to live on"
-  default     = "default"
-}
-
 variable "region" {
   description = "The region this all lives in. TODO can this be inferred from zone or vice versa?"
   default     = "eu-central-1"
