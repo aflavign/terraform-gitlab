@@ -1,16 +1,6 @@
-provider "aws" {
+module "config" {
+  source = "../modules/config"
   region = "${var.region}"
-}
-
-# get remote state to retreive id used for all accounts ressources
-data "terraform_remote_state" "infra" {
-  backend = "s3"
-
-  config {
-    bucket = "yxdzlwvolxmz-eu-central-1-tfstate-infra"
-    key    = "landing-zone/infra/infra.tfstate"
-    region = "eu-central-1"
-  }
 }
 
 data "template_file" "runner_host" {
@@ -24,7 +14,7 @@ data "template_file" "runner_host" {
 
 module "security_group" {
   source = "../modules/security_group"
-  vpc_id = "${data.terraform_remote_state.infra.vpc_id}"
+  vpc_id = "${module.config.vpc_id}"
   name   = "gitlab runner"
 }
 
@@ -43,7 +33,7 @@ resource "aws_instance" "gitlab-ci-runner" {
   # Our Security group to allow HTTP and SSH access
   vpc_security_group_ids = ["${module.security_group.id}"]
 
-  subnet_id = "${data.terraform_remote_state.infra.public_subnet_a_id}"
+  subnet_id = "${module.config.public_subnet_a_id}"
 
   # associate_public_ip_address = false
   # set the relevant tags

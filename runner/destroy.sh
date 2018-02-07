@@ -1,7 +1,5 @@
 #/bin/bash
 
-set -x
-
 if [ "$#" -ne 3  ]; then
   echo "Missing param"
   echo "host key name /gitlab_ip/ runner token"
