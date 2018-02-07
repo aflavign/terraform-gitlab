@@ -25,7 +25,7 @@ data "template_file" "runner_host" {
 module "security_group" {
   source = "../modules/security_group"
   vpc_id = "${data.terraform_remote_state.infra.vpc_id}"
-  name = "gitlab runner"
+  name   = "gitlab runner"
 }
 
 module "ami" {
@@ -81,7 +81,7 @@ resource "aws_instance" "gitlab-ci-runner" {
     when = "destroy"
 
     inline = [
-      "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.id}",
+      "sudo gitlab-ci-multi-runner unregister --name ${aws_instance.gitlab-ci-runner.id} || true",
     ]
 
     connection {

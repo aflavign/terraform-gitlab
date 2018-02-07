@@ -15,5 +15,5 @@ data "aws_ami" "rhel7" {
 }
 
 output "id" {
- value = "${data.aws_ami.rhel7.id}"
+  value = "${data.aws_ami.rhel7.id}"
 }

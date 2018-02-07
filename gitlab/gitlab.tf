@@ -17,13 +17,11 @@ module "ami" {
   source = "../modules/ami"
 }
 
-
 module "security_group" {
   source = "../modules/security_group"
   vpc_id = "${data.terraform_remote_state.infra.vpc_id}"
-  name = "gitlab-ce"
+  name   = "gitlab-ce"
 }
-
 
 resource "aws_instance" "gitlab-ce" {
   instance_type = "${var.machine_type}"
@@ -46,7 +44,7 @@ resource "aws_instance" "gitlab-ce" {
 
   provisioner "file" {
     source      = "bootstrap"
-    destination = "/tmp/bootstrap" 
+    destination = "/tmp/bootstrap"
 
     connection {
       type        = "ssh"
@@ -57,7 +55,7 @@ resource "aws_instance" "gitlab-ce" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo /tmp/bootstrap ${aws_instance.gitlab-ce.private_ip}"
+      "sudo /tmp/bootstrap ${aws_instance.gitlab-ce.private_ip}",
     ]
 
     connection {

@@ -10,5 +10,4 @@ fi
 
 terraform init 
 
-terraform plan -var host_key_name=$1
-terraform apply -var host_key_name=$1
+terraform destroy -var host_key_name=$1

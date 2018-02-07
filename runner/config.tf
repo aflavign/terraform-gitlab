@@ -24,7 +24,7 @@ variable "runner_host" {
 }
 
 variable "runner_token" {
-  description = "GitLab CI Runner registration token." 
+  description = "GitLab CI Runner registration token."
 }
 
 variable "runner_image" {

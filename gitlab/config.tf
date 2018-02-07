@@ -31,4 +31,3 @@ variable "tag_Owner" {
 variable "host_key_name" {
   description = "Key Pair"
 }
-
