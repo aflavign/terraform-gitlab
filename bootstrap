@@ -12,7 +12,7 @@ yum install -y gitlab-ce
 # Configure GitLab
 mkdir -p /etc/gitlab
 mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb
-sed -i 's@GENERATED_EXTERNAL_URL@http://$1@' /etc/gitlab/gitlab.rb
+sed -i 's@GENERATED_EXTERNAL_URL@http://"$1"@' /etc/gitlab/gitlab.rb
 chown root:root /etc/gitlab/gitlab.rb
 chmod 0600 /etc/gitlab/gitlab.rb
 
