@@ -2,6 +2,13 @@ provider "aws" {
   region = "${var.region}"
 }
 
+# Configure backend
+terraform {
+  backend "s3" {
+    region = "eu-central-1"
+  }
+}
+
 module "config" {
   source = "../modules/config"
 }
