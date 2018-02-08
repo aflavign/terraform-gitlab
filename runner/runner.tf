@@ -9,7 +9,6 @@ terraform {
   }
 }
 
-
 module "config" {
   source = "../modules/config"
 }
@@ -24,9 +23,11 @@ data "template_file" "runner_host" {
 }
 
 module "security_group" {
-  source = "../modules/security_group"
-  vpc_id = "${module.config.vpc_id}"
-  name   = "gitlab runner"
+  source      = "../modules/security_group"
+  vpc_id      = "${module.config.vpc_id}"
+  name        = "gitlab runner"
+  region      = "${var.region}"
+  cidr_blocks = "${var.infra_vpc_cidr}"
 }
 
 module "ami" {

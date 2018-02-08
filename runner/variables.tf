@@ -44,3 +44,5 @@ variable "host_key_name" {
 variable "private_key" {}
 
 variable "gitlab-ce_private_ip" {}
+
+variable "infra_vpc_cidr" {}

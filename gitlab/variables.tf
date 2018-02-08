@@ -30,3 +30,5 @@ variable "host_key_name" {
 variable "private_key" {
   description = "Key Pair"
 }
+
+variable "infra_vpc_cidr" {}

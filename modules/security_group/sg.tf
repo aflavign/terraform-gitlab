@@ -1,21 +1,30 @@
-resource "aws_security_group" "gitlab_host_SG" {
+resource "aws_security_group" "gitlab_sg" {
   name        = "${var.name}"
   description = "Rules for Gitlab host access"
   vpc_id      = "${var.vpc_id}"
 
-  # SSH access from Public IPs and this SG
+  # All access from VPC and this SG
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = 0
+    to_port     = 0
+    protocol    = "tcp"
+    cidr_blocks = ["${var.cidr_blocks}"]
+    self        = true
+  }
+
+  # HTTP access from Public ips and this SG
+  ingress {
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     self        = true
   }
 
-  # HTTP access from VPC and this SG
+  # SSH access from Public ips and this SG
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     self        = true
@@ -28,8 +37,12 @@ resource "aws_security_group" "gitlab_host_SG" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags {
+    Name = "sgr.${var.region}.${var.name}"
+  }
 }
 
 output "id" {
-  value = "${aws_security_group.gitlab_host_SG.id}"
+  value = "${aws_security_group.gitlab_sg.id}"
 }

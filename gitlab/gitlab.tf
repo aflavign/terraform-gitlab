@@ -18,9 +18,11 @@ module "ami" {
 }
 
 module "security_group" {
-  source = "../modules/security_group"
-  vpc_id = "${module.config.vpc_id}"
-  name   = "gitlab-ce"
+  source      = "../modules/security_group"
+  vpc_id      = "${module.config.vpc_id}"
+  name        = "gitlab-ce"
+  region      = "${var.region}"
+  cidr_blocks = "${var.infra_vpc_cidr}"
 }
 
 resource "aws_instance" "gitlab-ce" {
