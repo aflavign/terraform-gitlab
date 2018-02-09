@@ -3,8 +3,9 @@ data "terraform_remote_state" "infra" {
   backend = "s3"
 
   config {
-    bucket = "yxdzlwvolxmz-eu-central-1-tfstate-infra"
-    key    = "landing-zone/infra/infra.tfstate"
-    region = "eu-central-1"
+    bucket = "bucket-name"
+    key    = "key.tfstate"
+    region = "region
+
   }
 }
